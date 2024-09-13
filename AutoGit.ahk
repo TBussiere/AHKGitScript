@@ -1,6 +1,5 @@
 ;==============TODO==============
 ;
-; - Auto Update
 ; - Enable Edit already generated
 ; - Direct Edit Reten
 ;
@@ -8,7 +7,9 @@
 
 #Requires AutoHotkey v2.0
 
-global Version := "v0.9"
+global Version := "v1.0"
+global ScriptLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/AutoGit.ahk"
+global VersionLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/version.txt"
 
 
 global OutReten := ""
@@ -24,192 +25,50 @@ global git_StageStruct := Map()
 
 
 
-^+F9::
-{
-    pathToReten := PathWindow()
-
-    if(pathToReten == ""){
-        return
-    }
-
-    SetWorkingDir pathToReten
-
+local_script := A_ScriptFullPath
+CheckForUpdate() {
+    global version
+    remote_version := FetchRemoteVersion()
     
-
+    ; If the remote version is newer, update the script
+    if (remote_version != "" && remote_version != version) {
+        Result := MsgBox("New version " remote_version " available. Do you want to update ?", "Update", 36)
+        if(Result == "Yes"){
+            UpdateScript()
+            ToolTip "Updating.."
+            SetTimer () => ToolTip(), -5000
+        }
+    }
 }
 
+FetchRemoteVersion() {
+    RunWaitOne("curl.exe -s " VersionLink " -o remote_version.txt")
+    remote_version := ""
+    ; Read the remote version file
+    if FileExist("remote_version.txt") {
+        o_file := FileOpen("remote_version.txt", "rw")
+        remote_version := o_file.Read()
+        FileDelete("remote_version.txt")
 
-
-
-/*
-
-
-^+F9::
-{
-    ;IN
-    tosearch := "1.1.8.1. DCR01"
-    seekTitleRank := 4
-    toAdd := Map()
-    
-    aze := []
-    aze.Push("DCR01.boo")
-    aze.Push("aze.boo")
-    aze.Push("ImportDCR01.boo")
-    aze.Push("ggg.boo")
-    toAdd.Set("boo", aze)
-    
-    if(seekTitleRank == 3 and not toAdd.Has("Mono")){
-        ToolTip "Error"
-        SetTimer () => ToolTip(), -1000
-        return
+        return Trim(remote_version)
+    } else {
+        return ""
     }
-
-    ;Get Path
-    pathToReten := PathWindow()
-
-    if(pathToReten == ""){
-        return
-    }
-
-    SetWorkingDir pathToReten
-
-    ;Get Reten
-    retenpath := "\doc\support\" ;*.md"
-    GetMDFile( Format("{1}{2}", String(A_WorkingDir), retenpath)) ;"FR-SW-0420_PROJECT_Code_Documentation_EN.md"
-    filename := RetenFileName
-    full_path := Format("{1}{2}{3}", String(A_WorkingDir), retenpath, filename)
-
-    
-
-    /*o_file := FileOpen(full_path, "rw")
-
-    fullfile := o_file.Read()
-    fullfileTab := StrSplit(fullfile, "`n", "")
-
-
-
-    
-    found := false
-
-    i:=0
-    line:=""
-    while (i<65534 and not InStr(line, "## **1.2"))
-    {
-        i := i + 1
-        line := fullfileTab[i]
-        If(RegExMatch(line,"^\#\#\# \*\*1\.") != 0 and seekTitleRank == 3) {
-            if(InStr(line,tosearch)) {
-                found := true
-                
-            }
-            else if(found){
-                found := false
-                break
-            }
-        }
-        else if(RegExMatch(line,"^\#\#\#\# \*\*1\.") != 0 and seekTitleRank == 4) {
-            if(InStr(line,tosearch)){
-                found := true
-                
-            }
-            else if(found){
-                found := false
-                break
-            }
-        }
-        if(found){
-            if(seekTitleRank == 4 and RegExMatch(line,"^\#\#\#\#\# \*\*1\..*Technical implementation") != 0){
-                ToolTip Format("aze : {1}", line)
-                SetTimer () => ToolTip(), -3000
-                break
-            }
-            else if(RegExMatch(line,"^\#\#\#\#\# \*\*1\..*Custom elements") != 0){
-                ToolTip Format("aze : {1}", line)
-                SetTimer () => ToolTip(), -3000
-            }
-
-        }
-        
-    }
-
-
-    if(seekTitleRank == 4){
-        Current := ""
-        list := []
-        ToolTip "==LOOP DEBUG=="
-        Sleep 1000
-        i := i+1
-        Loop {
-            ToolTip fullfileTab[i]
-            Sleep 1000
-            ToolTip()
-            if(RegExMatch(fullfileTab[i], "^\*\*(.*)\*\* :", &match) != 0) {
-                if((not Current == "") and (list.Length > 0)) {
-                    ToolTip "PASS in apply"
-                    Sleep 1000
-                    i := i-1
-                    for(l in list) {
-                        ToolTip Format("add : {1}",l)
-                        Sleep 1000
-                        fullfileTab.InsertAt(i, l)
-                        i := i+1
-                    }
-                    i := i+1
-                }
-                Current := match[1]
-                if(toAdd.Has(Current)) {
-                    list := toAdd[Current]
-                }
-                else{
-                    Current := ""
-                }
-            }
-            else{
-                if(RegExMatch(fullfileTab[i], "- \*\*(.*)\*\* :", &match) != 0) {
-                    ind := list.Has(match[1])
-                    if(ind != 0) {
-                        list.RemoveAt(ind)
-                    }
-                }
-            }
-
-
-            if(RegExMatch(fullfileTab[i], "^\#\#\#\#\# \*\*1\..*Custom elements", &match) != 0){
-                break
-            }
-            i := i +1
-        }
-         
-        ToolTip i
-        Sleep 3000
-        ToolTip()
-
-    }
-    else if(seekTitleRank == 3){
-        i := i-2
-        fullfileTab.InsertAt(i, toAdd.Get("Mono")[1])
-    }
-    else{
-        ToolTip "Not Implemented"
-        SetTimer () => ToolTip(), -1000
-        return
-    }
-    ;fullfileTab.InsertAt(i-2, "===TEST===")
-
-    if(ToClip){
-        A_Clipboard := GetTaskStr(fullfileTab, i)
-    }
-    else{
-        fullfile := tofullstr(fullfileTab)
-        ;FileDelete(full_path)
-        ;FileAppend(fullfile,full_path)
-    }
- 
-    ToolTip A_Clipboard
-    SetTimer () => ToolTip(), -1000
-
 }
-*/
+
+UpdateScript() {
+    RunWaitOne("curl.exe -s " ScriptLink " -o new_script.ahk")
+    
+    ; Check if download was successful
+    if FileExist("new_script.ahk") {
+        FileMove("new_script.ahk", local_script, true) ; Overwrite the current script
+        MsgBox "Script updated successfully. Restarting..."
+        Run local_script
+        ExitApp
+    } else {
+    }
+}
+
 
 tofullstr(tab){
     res := ""
@@ -247,6 +106,7 @@ GetTaskStr(tab, index) {
 ; CTRL+SHIFT+F8
 ^+F8::
 {
+    CheckForUpdate()
     ;Get Path
     pathToReten := PathWindow()
 
