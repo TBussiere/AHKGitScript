@@ -7,7 +7,7 @@
 
 #Requires AutoHotkey v2.0
 
-global Version := "v1.0"
+global Version := "v1.1"
 global ScriptLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/AutoGit.ahk"
 global VersionLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/version.txt"
 
@@ -263,11 +263,11 @@ GetTaskStr(tab, index) {
             Text_Custom_elements := GetText_Custom_elements()
 
             if(last_task.Has(combo_res)){
-                if(RegExMatch(last_task[combo_res], "^\#\#\#\#.*1\.1\.([0-9]*)\.([0-9]*)", &lineMatch)){
+                if(RegExMatch(last_task[combo_res], "^\#\#\#\#.*1\.1\.([0-9]*)\.([0-9]*)\.", &lineMatch)){
                     index1 := lineMatch[1]
                     index2 := Integer(lineMatch[2])+1
                 }
-                else if(RegExMatch(last_task[combo_res], "^\#\#\#\#.*1\.1\.([0-9]*)\.([0-9]*)\.", &lineMatch)) {
+                else if(RegExMatch(last_task[combo_res], "^\#\#\#\#.*1\.1\.([0-9]*)\.([0-9]*)", &lineMatch)) {
                     index1 := lineMatch[1]
                     index2 := Integer(lineMatch[2])+1
                 }
