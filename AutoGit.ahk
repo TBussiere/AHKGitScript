@@ -7,7 +7,7 @@
 
 #Requires AutoHotkey v2.0
 
-global Version := "v1.1"
+global Version := "v1.2"
 global ScriptLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/AutoGit.ahk"
 global VersionLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/version.txt"
 
@@ -127,7 +127,7 @@ GetTaskStr(tab, index) {
     for line in gitStatus_list
     {
 
-        If (RegExMatch(line,"^[^ ] *(.*)", &t)==0)
+        If (RegExMatch(line,"^[^ ?]. (.*)", &t)==0)
         {
             continue
         }
@@ -162,7 +162,10 @@ GetTaskStr(tab, index) {
     BuildValues(stagedFiles)
 
 
-    /* DEBUG
+    /*
+    ; ToolTip ("DEBUG")
+    Sleep 1000
+    ; DEBUG
     for _filetype, _list in git_StageStruct{
 
         ToolTip Format("TYPE: {1}", _filetype)
@@ -175,6 +178,7 @@ GetTaskStr(tab, index) {
         ToolTip()
     }
     */
+    
     
     
 
@@ -306,7 +310,11 @@ GetTaskStr(tab, index) {
         result := ""
         
         for _filetype, _list in git_StageStruct{
-            result := Format("{1}`n**{2}** :`n", result, _filetype)
+            filetypeLocal := _filetype
+            if(InStr(_filetype, "boo")){
+                filetypeLocal := "GNA"
+            }
+            result := Format("{1}`n**{2}** :`n", result, filetypeLocal)
 
             for _file in _list{
                 line := Format(lineformat, _file)
@@ -408,7 +416,11 @@ BuildValues(stagedLines := []){
         ;source/(cstapp or GNA)/(TypeModif/subdir)/(Value/sudir/garbage)
         match := RegExMatch(line, "^\t?source\/(.*)\/(.*)\/(.*)$", &lineMatch)
         if(match == 0){
-            continue
+            ; Case source directly in the "Source" folder
+            ; match := RegExMatch(line, "^\t?(source)\/(.*)\/(.*)$", &lineMatch)
+            if(match == 0){
+                continue
+            }
         }
 
         if(InStr(lineMatch[1],"GNA")) {
