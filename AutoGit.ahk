@@ -7,7 +7,7 @@
 
 #Requires AutoHotkey v2.0
 
-global Version := "v1.2"
+global Version := "v1.2.1"
 global ScriptLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/AutoGit.ahk"
 global VersionLink := "https://raw.githubusercontent.com/TBussiere/AHKGitScript/main/version.txt"
 
@@ -25,7 +25,7 @@ global git_StageStruct := Map()
 
 
 
-local_script := A_ScriptFullPath
+local_script := A_LineFile
 CheckForUpdate() {
     global version
     remote_version := FetchRemoteVersion()
